@@ -1,68 +1,70 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
-import './style.scss';
+import React, {
+  useState,
+  FormEvent,
+  ChangeEvent,
+  useCallback,
+  useContext,
+} from "react";
+import "./style.scss";
+import { TextField } from "./parts/TextField";
+import { Button } from "../button";
+import { fetchUser } from "../../api/users";
+import { TabsContext } from "../context/TabsContext";
+import { UserContext } from "../context/UserContext";
 
-interface FormProps {
-    onUserAddition: (user: any) => void; // Принимаем функцию для обновления состояния верхнего компонента
-}
+export const initFormData = {
+  username: "",
+  phone: "",
+  website: "",
+};
 
-const Form: React.FC<FormProps> = ({ onUserAddition }) => {
-	const [username, setUsername] = useState<string>('');
-	const [phone, setPhone] = useState<string>('');
-	const [website, setWebsite] = useState<string>('');
+const Form = () => {
+  const { tab } = useContext(TabsContext);
+  const { setUser } = useContext(UserContext);
+  const [formData, setFormData] = useState(initFormData);
+  const { username, phone, website } = formData;
 
-	const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setUsername(event.target.value);
-	};
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-	const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setPhone(event.target.value);
-	};
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!setUser) return;
+      fetchUser(formData).then((user) => setUser(user));
+    },
+    [formData, setUser],
+  );
 
-	const handlewebsiteChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setWebsite(event.target.value);
-	};
+  if (tab !== "form") return null;
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
+  return (
+    <form onSubmit={handleSubmit} className="form-container">
+      <TextField
+        label="Username:"
+        name="username"
+        value={username}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Phone:"
+        name="phone"
+        value={phone}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Website:"
+        value={website}
+        type="email"
+        name="website"
+        onChange={handleChange}
+      />
 
-		fetch('https://jsonplaceholder.typicode.com/users', {
-			method: 'POST',
-			body: JSON.stringify({
-				username,
-				phone,
-				website,
-			}),
-			headers: {
-				'Content-type': 'application/json; charset=UTF-8',
-			},
-		})
-			.then((response) => response.json())
-			.then((user) => onUserAddition(user));
-	};
-
-	return (
-		<form onSubmit={handleSubmit} className="form-container">
-			<div>
-				<label>
-					Username:
-					<input type="text" value={username} onChange={handleUsernameChange} />
-				</label>
-			</div>
-			<div>
-				<label>
-					Phone:
-					<input type="text" value={phone} onChange={handlePhoneChange} />
-				</label>
-			</div>
-			<div>
-				<label>
-					Website:
-					<input type="email" value={website} onChange={handlewebsiteChange} />
-				</label>
-			</div>
-			<button className='button' type="submit">Submit</button>
-		</form>
-	);
+      <Button type="submit">Submit</Button>
+    </form>
+  );
 };
 
 export default Form;

@@ -1,11 +1,26 @@
 import { Button } from "../button";
+import { FC, useContext } from "react";
+import "./style.scss";
+import { TTab } from "../../types/tabs";
+import { TabsContext } from "../context/TabsContext";
+import { TABS } from "../../consts/tabs";
 
-export const Tabs = ({ onChange }: { onChange: (tab: boolean) => void }) => {
+const Tabs = () => {
+  const { setTab } = useContext(TabsContext);
 
-	return (
-		<div style={{ width: '100%', display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px' }}>
-			<Button onClick={() => onChange(false)}>form</Button>
-			<Button onClick={() => onChange(true)}>users</Button>
-		</div>
-	);
+  const handleClick = (tab: TTab) => () => setTab?.(tab);
+
+  return (
+    <div className="tabs">
+      {TABS.map((tab) => {
+        return (
+          <Button onClick={handleClick(tab)} key={tab}>
+            {tab}
+          </Button>
+        );
+      })}
+    </div>
+  );
 };
+
+export default Tabs;

@@ -1,8 +1,23 @@
 import "./style.scss";
+import { ButtonHTMLAttributes, FC, FormEvent } from "react";
 
-export const Button = ({ onClick, children }: {onClick: () => void, children?: string}) => {
+interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
+  label?: string;
+  children?: string;
+}
 
-	return (
-		<button className="button" onClick={onClick}>{children}</button>
-	);
+export const Button: FC<IButton> = ({
+  label,
+  type = "button",
+  children,
+  ...rest
+}) => {
+  return (
+    <div className="button-with-label">
+      {label && <p className="text">{label}</p>}
+      <button className="button" type={type} {...rest}>
+        {children}
+      </button>
+    </div>
+  );
 };
