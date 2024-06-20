@@ -1,4 +1,4 @@
-export interface UserProps {
+export interface IUser {
 	name?: string;
 	username: string;
 	phone: string;
